@@ -16,3 +16,4 @@ And 3 random states, if random value is under needed conditions:
 * Day Sleeping
 * Forgotten Meeting
 
+![.plot](photo_2023-05-23_20-45-39.jpg)
