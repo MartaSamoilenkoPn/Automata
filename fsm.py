@@ -7,12 +7,15 @@ class State:
         self.next_states = []
         self.time = time
 
+class TimeCheck(Exception): pass
+
 class FSM:
 
-    def __init__(self, state) -> None:
+    def __init__(self, state, end_state) -> None:
         assert isinstance(state, State)
         self.state = state
         self.time = 0
+        self.end_state = end_state
         self.random_value_alarm = randint(0,20)
         self.random_value_sleep = randint(0,20)
         self.random_value_forgotten_meeting = randint(0,20)
@@ -62,122 +65,152 @@ class FSM:
         assert isinstance(self.state, State)
         print(f"STATE : {self.state.name}")
 
+    def check_time(self):
+        if self.time == 24:
+            self.change_state(self.end_state)
+            print("END OF THE DAY IT'S TIME TO SLEEP")
+            raise TimeCheck
+
     def process(self):
         """_summary_
         """
-        value = 0
-        while True and self.time < 24:
-            self.check_random()
-            if self.time < 6:
-                print(f"You're sleeping, it's {self.time}:00")
-                time.sleep(1)
-                self.time += 1
+        coffee_counter = 0
+        try:
+            while True and self.time < 24:
+                self.check_random()
+                if self.time < 6:
+                    print(f"You're sleeping, it's {self.time}:00")
+                    time.sleep(1)
+                    self.time += 1
 
-            elif self.time == 6:
-                print(f"It's {self.time}:00")
-                print("GOOD MORNING")
-                self.time += 1
-
-            elif self.state.name == 'sleeping' and self.time > 6:
-                if self.time == 7:
+                elif self.time == 6:
                     print(f"It's {self.time}:00")
+                    print("GOOD MORNING")
+                    self.time += 1
+
+                elif self.state.name == 'sleeping' and self.time > 6:
+                    if self.time == 7:
+                        print(f"It's {self.time}:00")
+                        self.change_state(self.state.next_states[0])
+                        print("You're eating, bon apetite, sweety")
+                    elif self.time < 10:
+                        print(f"It's {self.time}:00")
+                        self.change_state(self.state.next_states[1])
+                    else:
+                        print(f"It's {self.time}:00")
+                        self.change_state(self.state.next_states[2])
+                        print("Oops, it's too late so go do your tasks...")
+
+                elif self.state.name == 'breakfast':
+                    time.sleep(1)
+                    self.time += 1
+                    print(f"It's {self.time}:00")
+                    self.check_random()
                     self.change_state(self.state.next_states[0])
-                    print("You're eating, bon apetite, sweety")
-                elif self.time < 10:
+
+                elif self.state.name == 'matan':
+                    self.check_time()
+                    time.sleep(1)
+                    self.time += 1
                     print(f"It's {self.time}:00")
-                    self.change_state(self.state.next_states[1])
+                    self.check_time()
+                    self.check_random()
+                    time.sleep(1)
+                    self.time += 1
+                    print(f"It's {self.time}:00")
+                    self.check_time()
+                    self.check_random()
+                    time.sleep(1)
+                    self.time += 1
+                    print(f"It's {self.time}:00")
+                    self.check_time()
+                    self.check_random()
+                    if coffee_counter < 3 :
+                        self.change_state(self.state.next_states[randint(0, len(self.state.next_states)-1)])
+                    else:
+                        self.change_state(self.state.next_states[0])
+
+                elif self.state.name == 'coffee':
+                    self.check_time()
                     print("Coffe is always a good idea!")
-                    self.change_state(self.state.next_states[0])
-                else:
+                    time.sleep(1)
+                    self.time += 1
                     print(f"It's {self.time}:00")
-                    self.change_state(self.state.next_states[2])
-                    print("Oops, it's too late so go do your tasks...")
-
-            elif self.state.name == 'breakfast':
-                time.sleep(1)
-                self.time += 1
-                print(f"It's {self.time}:00")
-                self.check_random()
-                self.change_state(self.state.next_states[0])
-
-            elif self.state.name == 'matan':
-                time.sleep(1)
-                self.time += 1
-                print(f"It's {self.time}:00")
-                self.check_random()
-                time.sleep(1)
-                self.time += 1
-                print(f"It's {self.time}:00")
-                self.check_random()
-                time.sleep(1)
-                self.time += 1
-                print(f"It's {self.time}:00")
-                self.check_random()
-                self.change_state(self.state.next_states[randint(0, len(self.state.next_states)-1)])
-
-            elif self.state.name == 'coffee':
-                time.sleep(1)
-                self.time += 1
-                print(f"It's {self.time}:00")
-                self.check_random()
-                self.change_state(self.state.next_states[0])
-
-            elif self.state.name == 'programming':
-                time.sleep(1)
-                self.time += 1
-                print(f"It's {self.time}:00")
-                self.check_random()
-                time.sleep(1)
-                self.time += 1
-                print(f"It's {self.time}:00")
-                self.check_random()
-                time.sleep(1)
-                self.time += 1
-                print(f"It's {self.time}:00")
-                self.check_random()
-                self.change_state(self.state.next_states[randint(0, len(self.state.next_states)-1)])
-
-            elif self.state.name == 'discrete':
-                time.sleep(1)
-                self.time += 1
-                print(f"It's {self.time}:00")
-                self.check_random()
-                time.sleep(1)
-                self.time += 1
-                print(f"It's {self.time}:00")
-                self.check_random()
-                time.sleep(1)
-                self.time += 1
-                print(f"It's {self.time}:00")
-                self.check_random()
-                if self.time < 19:
-                    self.change_state(self.state.next_states[randint(0, len(self.state.next_states)-1)])
-                else:
-                    self.change_state(self.state.next_states[1])
-
-            elif self.state.name == 'sport':
-                time.sleep(1)
-                self.time += 1
-                print(f"It's {self.time}:00")
-                self.check_random()
-                time.sleep(1)
-                self.time += 1
-                print(f"It's {self.time}:00")
-                self.check_random()
-                self.change_state(self.state.next_states[0])
-            
-            elif self.state.name == 'dinner':
-                time.sleep(1)
-                self.time += 1
-                print(f"It's {self.time}:00")
-                self.check_random()
-                if self.time < 21:
+                    self.check_time()
+                    self.check_random()
                     self.change_state(self.state.next_states[0])
-                else:
-                    self.change_state(self.state.next_states[1])
-            
-            elif self.state.name == 'end':
-                break
+
+                elif self.state.name == 'programming':
+                    self.check_time()
+                    time.sleep(1)
+                    self.time += 1
+                    print(f"It's {self.time}:00")
+                    self.check_time()
+                    self.check_random()
+                    time.sleep(1)
+                    self.time += 1
+                    print(f"It's {self.time}:00")
+                    self.check_time()
+                    self.check_random()
+                    time.sleep(1)
+                    self.time += 1
+                    print(f"It's {self.time}:00")
+                    self.check_random()
+                    self.change_state(self.state.next_states[randint(0, len(self.state.next_states)-1)])
+
+                elif self.state.name == 'discrete':
+                    self.check_time()
+                    time.sleep(1)
+                    self.time += 1
+                    print(f"It's {self.time}:00")
+                    self.check_time()
+                    self.check_random()
+                    time.sleep(1)
+                    self.time += 1
+                    print(f"It's {self.time}:00")
+                    self.check_time()
+                    self.check_random()
+                    time.sleep(1)
+                    self.time += 1
+                    print(f"It's {self.time}:00")
+                    self.check_time()
+                    self.check_random()
+                    if self.time < 19:
+                        self.change_state(self.state.next_states[randint(0, len(self.state.next_states)-1)])
+                    else:
+                        self.change_state(self.state.next_states[1])
+
+                elif self.state.name == 'sport':
+                    self.check_time()
+                    time.sleep(1)
+                    self.time += 1
+                    print(f"It's {self.time}:00")
+                    self.check_time()
+                    self.check_random()
+                    time.sleep(1)
+                    self.time += 1
+                    print(f"It's {self.time}:00")
+                    self.check_time()
+                    self.check_random()
+                    self.change_state(self.state.next_states[0])
+                
+                elif self.state.name == 'dinner':
+                    self.check_time()
+                    time.sleep(1)
+                    self.time += 1
+                    print(f"It's {self.time}:00")
+                    self.check_time()
+                    self.check_random()
+                    if self.time < 21:
+                        self.change_state(self.state.next_states[0])
+                    else:
+                        self.change_state(self.state.next_states[1])
+                
+                elif self.state.name == 'end':
+                    print("END OF THE DAY IT'S TIME TO SLEEP")
+                    break
+        except TimeCheck:
+            pass
 
 
 if __name__ == "__main__":
@@ -207,5 +240,5 @@ if __name__ == "__main__":
     state_sport.next_states = [state_dinner]
 
 
-    fsm = FSM(state = state_sleeping)
+    fsm = FSM(state = state_sleeping, end_state = state_end)
     fsm.process()
